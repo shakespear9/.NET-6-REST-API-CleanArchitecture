@@ -39,7 +39,7 @@ create JwtSettings model to map with JwtSettings in appSetting.json
 and then add it to IOptions by
 services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
-To be more secure we can use <b>user-secrets</b> 
+To be more secure we can use user-secrets
 
 dotnet user-secrets init --project .\BuberDinner.Api\
 

@@ -1,0 +1,50 @@
+Clean Architecture Project Structure
+---------------------------------------
+Part 1
+
+dotnet new sln --o BuberDinner
+more .\BuberDinner.sln เพื่อดู detail ของ solution
+
+dotnet new webapi -o BuberDinner.Api
+- Api เป็น Interface ที่ใช้สำหรับเชื่อมต่อ outside world
+dotnet new classlib -o BuberDinner.Contracts
+- Contracts is a project ที่ model ของ request และ response 
+dotnet new classlib -o BuberDinner.Infrastructure
+dotnet new classlib -o BuberDinner.Application
+dotnet new classlib -o BuberDinner.Domain
+
+dotnet new classlib -o -BuberDinner.Contracts
+
+Api reference Contracts, Infrastructure, Application
+dotnet add Api reference Contracts
+dotnet add Api reference Infrastructure
+dotnet add Api reference Application
+
+Infrastrucuture reference Application
+dotnet add Infrastructure reference Application
+
+Application reference Domain
+dotnet add Application reference Domain
+
+Application, Infrastructure has own DependencyInjection for easier to manage code 
+
+
+---------------------------------------
+Part 2
+implement JWTTokenGenerator by Declare abstractions(Interface) IJwtTokenGenerator at Application and let Infrastructure implements it and configureService in DependencyInjection of Infrastructure
+
+init setter accessor - These properties and indexers can be set at the point of object creation for immutable data purpose เหมือนการทำ get only properties และทำ constructor ที่ set ค่า property นั้น ๆ ได้ก็ต่อเมื่อตอน new object เท่านั้น
+
+create JwtSettings model to map with JwtSettings in appSetting.json
+and then add it to IOptions by
+services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+
+To be more secure we can use user-secrets 
+
+dotnet user-secrets init --project .\BuberDinner.Api\
+
+dotnet user-secrets set --project .\BuberDinner.Api\ "JwtSettings:Secret" "super-secret-key-from-user-secrets" 
+to set user-secret to section in appSetting
+
+dotnet user-secrets list --project .\BuberDinner.Api\ 
+to list user-secrets

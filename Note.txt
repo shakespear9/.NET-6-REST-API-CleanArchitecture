@@ -48,3 +48,6 @@ to set user-secret to section in appSetting
 
 dotnet user-secrets list --project .\BuberDinner.Api\ 
 to list user-secrets
+
+---------------------------------------
+Part 3

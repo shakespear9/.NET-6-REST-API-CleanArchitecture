@@ -51,3 +51,7 @@ to list user-secrets
 
 ---------------------------------------
 Part 3
+
+Repository is for encapsulate the logic required to access data source
+so Repository Class should be in Persistence of Infrastructure and IRepository Interface should be in Persistence of Application
+the reason we implement in Infrastructure because we can have many to access data such as using EF core, inMemomy database etc.

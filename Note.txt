@@ -163,3 +163,6 @@ will access in the httpContext to get the thrown error information
         }
 
 -----------------------------------------------------------------------------------------
+
+4. Problem Detail with Extension
+Create Custom Problem Detail Factory which implement ProblemDetailFactory and implement the interface extension and edit ApplyProblemDetailsDefaults method add more keyValue to Extension

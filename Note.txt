@@ -59,12 +59,13 @@ the reason we implement in Infrastructure because we can have many to access dat
 ---------------------------------------
 Part 4
 Global Error Handling
-Normally if we doesn't have Error Hanlding the response will send error as plain text to client which doesn't good and useful for client.
+Normally if we doesn't have Error Hanlding the response will send error as plain text to client which doesn't good and not useful for client.
 
 1. Via Middleware
 create middleware class to catch exception of the request
-and then add middleware by app.UseMiddleware<ErrorHandlingMiddleware>();
- await _next(context); will invoke endpoint and all inner code of endpoint will be in try catch block
+and then add middleware in http request pipeline by add this line
+ app.UseMiddleware<ErrorHandlingMiddleware>();
+ await _next(context); will invoke endpoint and all inner code of endpoint will be execute in puter try catch block
 ----------------------------------------------------------------------------------------- 
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -112,4 +113,22 @@ and add [ErrorHandlingFilterAttribute] at the controller
 or add filter to all controller by add option to AddController services
 builder.Services.AddController(options => options.Filters.Add<ErrorHandlingFilterAttribute>());
 
+but with this approach is not standard 
+
 -----------------------------------------------------------------------------------------
+
+
+3. Problem Detail (standard RFC Specification)
+ref : https://datatracker.ietf.org/doc/html/rfc7807#section-3
+return error with 
+Content Type : application/problem+json
+Response Body : with 4 standard properties are 
+type = uri reference that identifies the problem type
+, title = summary of the problem type (must be unique)
+, status = response status code
+, detail = explanation of the problem and how to fix it
+, instance = resource that we working on 
+and other 
+properties are extension (custom) 
+which give more information about detail such as what parameters/body are sent to make this problem occured
+

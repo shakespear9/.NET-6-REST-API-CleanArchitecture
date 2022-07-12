@@ -10,10 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services
         .AddApplication()
         .AddInfrastructure(builder.Configuration)
-        .AddControllers(options =>
-        {
-            options.Filters.Add<ErrorHandlingFilterAttribute>();
-        });
+        .AddControllers();
 
 }
 
@@ -21,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 {
     // app.UseMiddleware<ErrorHandlingMiddleware>();
+    app.UseExceptionHandler("/error");
     app.UseHttpsRedirection();
     app.MapControllers();
     app.Run();

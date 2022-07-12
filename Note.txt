@@ -67,12 +67,6 @@ and then add middleware in http request pipeline by add this line
  app.UseMiddleware<ErrorHandlingMiddleware>();
  await _next(context); will invoke endpoint and all inner code of endpoint will be execute in puter try catch block
 ----------------------------------------------------------------------------------------- 
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-
-namespace BuberDinner.Api.Middleware;
-
 public class ErrorHandlingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -110,15 +104,15 @@ public class ErrorHandlingMiddleware
 create a filter atrribute that will be invoked when exception is not handled is thrown
 by create class that inherited from ExceptionFilterAttribute
 and add [ErrorHandlingFilterAttribute] at the controller 
-or add filter to all controller by add option to AddController services
+or apply the filter to all controller by add more option to AddController services add program.cs with
 builder.Services.AddController(options => options.Filters.Add<ErrorHandlingFilterAttribute>());
 
-but with this approach is not standard 
+but with this approach is not standard and has one caveat is cannot catch HttpResponseException
 
 -----------------------------------------------------------------------------------------
 
 
-3. Problem Detail (standard RFC Specification)
+3. Problem Detail (standard RFC Specification) with error endpoint
 ref : https://datatracker.ietf.org/doc/html/rfc7807#section-3
 return error with 
 Content Type : application/problem+json
@@ -132,3 +126,40 @@ and other
 properties are extension (custom) 
 which give more information about detail such as what parameters/body are sent to make this problem occured
 
+the way to apply this approch is 
+1. create ExceptionFilter class same as Filter Approch (2) but with 
+ProblemDetail inside ObjectResult not hard coded 
+ public class ErrorHandlingFilterAttribute : ExceptionFilterAttribute
+    {
+        public override void OnException(ExceptionContext context)
+        {
+            var exception = context.Exception;
+
+            var problemDetails = new ProblemDetails
+            {
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
+                Title = "An error occured while processing your request.",
+                Status = (int)HttpStatusCode.InternalServerError
+            };
+
+            context.Result = new ObjectResult(problemDetails);
+
+            context.ExceptionHandled = true;
+
+        }
+    }
+
+2. add ExceptionHandler middleware which will be catch all exception that occured by 
+add this code app.UseExceptionHandler("/error"); 
+which specifiy endpoint to handling the exception
+
+3. create ErrorsController and action method with [Route("/error")] and in body action body
+will access in the httpContext to get the thrown error information
+        [Route("/error")]
+        public IActionResult Error()
+        {
+            Exception? exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+            return Problem(title: exception?.Message, statusCode: (int)HttpStatusCode.BadRequest);
+        }
+
+-----------------------------------------------------------------------------------------

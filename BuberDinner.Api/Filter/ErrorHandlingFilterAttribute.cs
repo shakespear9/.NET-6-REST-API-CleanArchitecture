@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -13,12 +14,14 @@ namespace BuberDinner.Api.Filter
         {
             var exception = context.Exception;
 
-            var errorResult = new { error = "An error occured while processing your request." };
-
-            context.Result = new ObjectResult(errorResult)
+            var problemDetails = new ProblemDetails
             {
-                StatusCode = 500
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
+                Title = "An error occured while processing your request.",
+                Status = (int)HttpStatusCode.InternalServerError
             };
+
+            context.Result = new ObjectResult(problemDetails);
 
             context.ExceptionHandled = true;
 

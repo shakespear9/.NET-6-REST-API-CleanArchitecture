@@ -19,6 +19,7 @@ public class AuthenticationController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest request)
     {
+
         var authResult = _authenticationService.Register(
             request.FirstName,
              request.LastName,
